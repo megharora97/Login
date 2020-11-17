@@ -39,7 +39,7 @@ class Service extends React.Component {
             connection_details: null,
             lang: {},
             lan: [],
-            loading: true
+            loading: false
         }
     }
 
@@ -81,10 +81,11 @@ class Service extends React.Component {
         console.log('Serve', Serve);
 
         if (this.state.connection_status) {
+            this.setState({ loading: true })
             this.ServiceApi()
         }
         else {
-            if (Serve && Serve != '') { this.setState({ ServiceJson: Serve }) }
+            if (Serve && Serve != '') { this.setState({ ServiceJson: Serve, loading: false }) }
         }
 
     }
@@ -176,58 +177,58 @@ class Service extends React.Component {
             <SafeAreaView style={Styles().container1}>
                 {loading ? <ActivityIndicator size={"large"} color={Colors.Pinkk} /> :
 
-                    <KeyboardAvoidingView style={{ flex: 1, width: '100%' }} >
-                        <View style={{}}>
-                            <Text style={[Styles().ProductCategoryPickerText, { fontSize: height / 40, textAlign: 'center', margin: Config.margin }]} >{TextJson.Details}</Text>
+                <KeyboardAvoidingView style={{ flex: 1, width: '100%' }} >
+                    <View style={{}}>
+                        <Text style={[Styles().ProductCategoryPickerText, { fontSize: height / 40, textAlign: 'center', margin: Config.margin }]} >{TextJson.Details}</Text>
+                    </View>
+
+                    <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width, marginBottom: Config.margin, flex: 0.4 }}>
+                        <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.Cid} {User1.cid}</Text>
+                        <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.CUSTOMERID} {User1.customer_id}</Text>
+                        <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.TOKEN}{User1.token}</Text>
+                    </View>
+
+                    <ScrollView style={{ flex: 0.37, width: '100%', marginBottom: Config.margin }} keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                        <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width }}>
+                            {ServiceJson && ServiceJson != '' ?
+                                <FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    data={ServiceJson}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={ServiceJson ? this.renderService : null}
+                                />
+                                : null}
                         </View>
+                    </ScrollView>
 
-                        <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width, marginBottom: Config.margin, flex: 0.4 }}>
-                            <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.Cid} {User1.cid}</Text>
-                            <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.CUSTOMERID} {User1.customer_id}</Text>
-                            <Text style={[Styles().ProductCategoryPickerText, { margin: Config.margin }]} >{TextJson.TOKEN}{User1.token}</Text>
+
+                    <ScrollView style={{ flex: 0.33, width: '100%', marginBottom: Config.margin / 1.5 }} keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
+                        <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width }}>
+                            {Data1 && Data1 != '' ?
+                                <FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    data={Data1}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={Data1 ? this.renderlang : null}
+                                />
+                                : null}
                         </View>
-
-                        <ScrollView style={{ flex: 0.37, width: '100%', marginBottom: Config.margin }} keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                            <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width }}>
-                                {ServiceJson && ServiceJson != '' ?
-                                    <FlatList
-                                        showsVerticalScrollIndicator={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        data={ServiceJson}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        renderItem={ServiceJson ? this.renderService : null}
-                                    />
-                                    : null}
-                            </View>
-                        </ScrollView>
+                    </ScrollView>
 
 
-                        <ScrollView style={{ flex: 0.33, width: '100%', marginBottom: Config.margin / 1.5 }} keyboardShouldPersistTaps='handled' showsVerticalScrollIndicator={false} showsHorizontalScrollIndicator={false}>
-                            <View style={{ alignSelf: 'center', backgroundColor: Colors.White, width: width }}>
-                                {Data1 && Data1 != '' ?
-                                    <FlatList
-                                        showsVerticalScrollIndicator={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        data={Data1}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        renderItem={Data1 ? this.renderlang : null}
-                                    />
-                                    : null}
-                            </View>
-                        </ScrollView>
-
-
-                        <View style={{ alignSelf: 'center', flex: 0.15 }}>
-                            <GlobalButton
-                                ButtonTitle="LOG OUT"
-                                ButtonType='solid'
-                                ButtonWidth={width - (Config.margin * 2)}
-                                Bottoncolor={Colors.Orange5}
-                                onButtonPress={() => this.logout()}
-                            />
-                        </View>
-                    </KeyboardAvoidingView>
-                }
+                    <View style={{ alignSelf: 'center', flex: 0.15 }}>
+                        <GlobalButton
+                            ButtonTitle="LOG OUT"
+                            ButtonType='solid'
+                            ButtonWidth={width - (Config.margin * 2)}
+                            Bottoncolor={Colors.Orange5}
+                            onButtonPress={() => this.logout()}
+                        />
+                    </View>
+                </KeyboardAvoidingView>
+               }
             </SafeAreaView>
         );
     }

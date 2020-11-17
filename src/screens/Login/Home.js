@@ -73,11 +73,12 @@ class Home extends React.Component {
 
 
         if (this.state.connection_status) {
+            this.setState({ loading: true })
             this.LanguageApi()
 
         }
         else {
-            if (Lang && Lang != '') { this.setState({ LanguageJson: Lang }) }
+            if (Lang && Lang != '') { this.setState({ LanguageJson: Lang, loading: false }) }
         }
 
     }
@@ -233,19 +234,19 @@ class Home extends React.Component {
 
                         {loading ? <ActivityIndicator size={"large"} color={Colors.Pinkk} /> :
 
-                            <View style={{ marginBottom: Config.margin }} >
-                                {LanguageJson && LanguageJson != '' ?
-                                    <FlatList
-                                        showsVerticalScrollIndicator={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        data={LanguageJson}
-                                        extraData={this.state}
-                                        keyExtractor={(item, index) => index.toString()}
-                                        renderItem={LanguageJson ? this.renderLanguage : null}
-                                    />
-                                    : null}
-                            </View>
-                        }
+                        <View style={{ marginBottom: Config.margin }} >
+                            {LanguageJson && LanguageJson != '' ?
+                                <FlatList
+                                    showsVerticalScrollIndicator={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    data={LanguageJson}
+                                    extraData={this.state}
+                                    keyExtractor={(item, index) => index.toString()}
+                                    renderItem={LanguageJson ? this.renderLanguage : null}
+                                />
+                                : null}
+                        </View>
+                        } 
 
                     </ScrollView>
                     <View >
