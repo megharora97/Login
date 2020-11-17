@@ -59,6 +59,31 @@ export const getServiceApi = () => {
     });
 }
 
+//getLanguagesApi
+export const getLanguages = (url) => {
+  var authOptions = {
+    method: 'GET',
+    url: url,
+    headers: {
+      "X-Username": "wallet",
+      "X-Password": "4970FAB298E271E430010235E9C88EA5E467DEEF",
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  };
+  console.log('authOptions GET getLanguages :-  ', authOptions)
+  return axios(authOptions)
+    .then(res => {
+      console.log("response getLanguages", res)
+      if (res && res.status == 200) {
+        return res.data;
+      } else { return res }
+    })
+    .catch((error) => {
+      handleErrors(error)
+    });
+}
+
+
 //callLoginApi
 export const callLoginApi = (email, password) => {
   let formData = new FormData();

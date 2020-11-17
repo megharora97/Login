@@ -8,7 +8,7 @@ Pinkk                   :    '#FB84AC',
 Grey74	                :	 'rgb(188,188,188)' ,        // #bcbcbc	
 Grey94	                :	 '#cccccc' ,        //	
 Grey50	                :	 'rgb(128,128,128)' ,        // #808080	
-
+Grey1                   :    '#F2F2F2',
 
    input: {
        border: 'rgba(0,0,0,0.3)'

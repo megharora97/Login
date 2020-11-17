@@ -17,7 +17,7 @@ export default class GlobalDropdown extends Component {
                     <View>
                         {ImageAvailable ?
                             <Image
-                                source={{uri:ImageUrl}}
+                                source={{ uri: ImageUrl }}
                                 style={{ width: height / 35, height: height / 35, justifyContent: 'center' }}
                                 placeholderStyle={{ backgroundColor: Colors.trans }}
                                 resizeMode='contain'

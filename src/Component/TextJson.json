@@ -1,5 +1,9 @@
 {
     "Login": "Login to continue",
     "Welcome":"Welcome",
-   "SelectLanguage" :"Select any Language"
+   "SelectLanguage" :"Select any Language",
+   "Details":"User Details",
+   "Cid":"C.ID: ",
+   "CUSTOMERID": "CUSTOMER ID: ",
+   "TOKEN":  "TOKEN: "
 }

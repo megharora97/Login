@@ -38,6 +38,7 @@ class Login extends React.Component {
     async UNSAFE_componentWillMount() {
         const Logged = JSON.parse(await AsyncStorage.getItem('userInfo1'))
         if (Logged) {
+            this.setState({ loading: true })
             this.props.navigation.dispatch(
                 StackActions.replace('Home', {
                     user: 'megha',

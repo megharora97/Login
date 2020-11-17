@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import Login from '../screens/Login';
 import Home from '../screens/Login/Home';
+import Service from '../screens/Login/Service';
 
 const { height, width } = Dimensions.get('window')
 StatusBar.setBarStyle('light-content');
@@ -22,6 +23,11 @@ function HomeStackScreen() {
           headerShown: false,
         }} />
       <Stack.Screen name="Home" component={Home}
+        headerMode="none"
+        options={{
+          headerShown: false,
+        }} />
+      <Stack.Screen name="Service" component={Service}
         headerMode="none"
         options={{
           headerShown: false,

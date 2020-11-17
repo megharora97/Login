@@ -27,5 +27,4 @@ export default {
       Language: Language,
       EmailRegex: EmailRegex,
       Service: Service,
-
 }

@@ -12,9 +12,11 @@ import GlobalButton from '../../Component/GlobalButtom';
 import Snackbar from 'react-native-paper/lib/module/components/Snackbar';
 import AsyncStorage from '@react-native-community/async-storage';
 import Loader from '../../Component/Loader';
-import { getLanguageApi, getServiceApi } from '../../Services/Api';
+import { getLanguageApi, getServiceApi, getLanguages } from '../../Services/Api';
 import GlobalDropdown from '../../Component/GlobalDropdown'
 import NetInfo from "@react-native-community/netinfo";
+import GlobalCheckbox from '../../Component/GlobalCheckbox';
+import { ActivityIndicator } from 'react-native-paper';
 
 
 const { height, width } = Dimensions.get('window');
@@ -29,6 +31,7 @@ class Home extends React.Component {
             LanguageJson: [],
             ServiceJson: [],
             Selected_Lang: '',
+            loading: true,
             Selected_Service: '',
             connection_status: false,
             connection_type: null,
@@ -60,30 +63,23 @@ class Home extends React.Component {
     }
 
     async UNSAFE_componentWillMount() {
-        // const User1 = JSON.parse(await AsyncStorage.getItem('userInfo1'))
-        // console.log("User1 profile", User1);
-        // if (User1) {  this.setState({ User1: User1 }) }
+        const User1 = JSON.parse(await AsyncStorage.getItem('userInfo1'))
+        console.log("User1 profile", User1);
+        if (User1) { this.setState({ User1: User1 }) }
 
 
         const Lang = JSON.parse(await AsyncStorage.getItem('LanguageJson'))
-        console.log('Lang', Lang);
-        const Serve = JSON.parse(await AsyncStorage.getItem('ServiceJson'))
-        console.log('Serve', Serve);
+        console.log('Language', Lang);
+
 
         if (this.state.connection_status) {
             this.LanguageApi()
-            this.ServiceApi()
+
         }
         else {
-            if (Lang && Lang != '') { this.setState({LanguageJson:Lang}) }
-            if (Serve && Serve != '') { this.setState({ServiceJson:Serve}) }
+            if (Lang && Lang != '') { this.setState({ LanguageJson: Lang }) }
         }
 
-    }
-
-    logout = async () => {
-        AsyncStorage.clear()
-        this.props.navigation.navigate("Login");
     }
 
     async LanguageApi() {
@@ -101,7 +97,8 @@ class Home extends React.Component {
                             langid: item.lang_id,
                             value: item.lang_name,
                             flagicon: item.flag,
-                            jsonfile: item.file
+                            jsonfile: item.file,
+                            Checked: false
                         })
                     })
                     console.log("LanguageJson", LanguageJson);
@@ -115,62 +112,115 @@ class Home extends React.Component {
             })
     }
 
-
-    ServiceApi() {
-        this.setState({ loading: true })
-        getServiceApi()
-            .then(async (res) => {
-                this.setState({ loading: false })
-                console.log('ServiceApi Success res1 :- ', res);
-                let Response = res
-                if (Response && Response != '') {
-                    let ServiceData = Response
-                    console.log("ServiceApi Response", Response);
-
-                    let ServiceJson = []
-                    if (ServiceData && ServiceData != '') {
-                        ServiceData.map((item, index) => {
-                            ServiceJson.push({
-                                Id: item.id,
-                                Icon: item.icon,
-                                value: item.service
-                            })
-                        })
-                        console.log("ServiceJson", ServiceJson);
-                    }
-                    this.setState({ ServiceJson: ServiceJson })
-                    await AsyncStorage.setItem('ServiceJson', JSON.stringify(ServiceJson))
-                }
-            })
-            .catch((error) => {
-                this.setState({ loading: false })
-                console.log('error in ServiceApi', error);
-                alert(error)
-            })
-    }
-
-    async StoreselectedLang(dataa, index) {
-        console.log("indexStoreselectedLang", index,);
-        console.log("item==Selected_Lang=====>", dataa)
-        const { LanguageJson } = this.state;
+    CheckLanguage(ind) {
+        const { LanguageJson } = this.state
         console.log('LanguageJson', LanguageJson);
-        let Flag = LanguageJson[index].flagicon
-        this.setState({ Selected_Lang: dataa, Flag: Flag })
+        LanguageJson.map((item, index) => {
+            if (index === ind) {
+                console.log('index', index, ind);
+                item.Checked = true
+            }
+            else {
+                item.Checked = false
+            }
+        })
+        this.setState({ LanguageJson: LanguageJson })
     }
 
-    async StoreSelected_Service(dataa1, index) {
-        console.log("indexStoreSelected_Service", index,);
-        console.log("item==StoreSelected_Service=====>", dataa1)
-        const { ServiceJson } = this.state;
-        console.log('ServiceJson', ServiceJson);
-        let Icon1 = ServiceJson[index].Icon
-        this.setState({ Selected_Service: dataa1, Icon1: Icon1 })
+    async LanguagesApi(url, Data) {
+        const { connection_status } = this.state;
+        let Lan = ''
+        let getdata = ''
+
+        if (Data && Data.value) {
+            Lan = Data.value
+        }
+        if (Lan) {
+            const myData = await AsyncStorage.getItem(Lan, '')
+
+            console.log('myData', myData);
+            if (myData) { getdata = JSON.parse(myData) }
+        }
+
+        if (getdata && !connection_status) {
+            this.props.navigation.navigate('Service', { Lang: getdata })
+        }
+        else {
+            this.setState({ loading: true })
+            await getLanguages(url)
+                .then(async (res) => {
+                    this.setState({ loading: false })
+                    console.log('get LanguagesApi res :- ', url, res);
+                    try {
+                        AsyncStorage.setItem(Lan, JSON.stringify(res))
+                        this.props.navigation.navigate('Service', { Lang: res })
+                    } catch (error) {
+                        console.log('SaveServiceDataerror', error);
+                    }
+
+                })
+                .catch((error) => {
+                    this.setState({ loading: false })
+                    alert(error)
+                })
+        }
+
+    }
+
+
+    Continue() {
+        let Data = ''
+        let urll = ''
+        const { LanguageJson } = this.state;
+        LanguageJson.map((item, index) => {
+            if (item.Checked) {
+                Data = item
+                urll = item.jsonfile
+            }
+        })
+        console.log("Data", Data);
+        if (urll) {
+            this.LanguagesApi(urll, Data)
+        }
+        else {
+            alert('Please Select Language')
+        }
+    }
+
+
+
+    renderLanguage = ({ item, index }) => {
+        const { LanguageJson } = this.state;
+        console.log("LanguageJson123", LanguageJson);
+
+        return (
+
+            <View key={index} style={{ flexDirection: 'row', }}>
+                <GlobalCheckbox
+                    WrapperAlignment={{ alignItems: 'center' }}
+                    Title={<View style={{ flexDirection: 'row' }}>
+                        <View style={[
+                            Styles().available, { alignSelf: 'flex-start' }]}>
+                            <Text style={
+                                Styles().AvailableText}>{item.value ? item.value : ''}</Text>
+                        </View>
+                    </View>}
+                    CheckedIcon='md-radio-button-on'
+                    UnCheckedIcon='md-radio-button-off'
+                    IconType='ionicon'
+                    CheckedColor={Colors.Pinkk}
+                    ViewStyle={{ paddingVertical: 15 }}
+                    Checked={LanguageJson.length > 0 ? LanguageJson[index].Checked : false}
+                    OnPress={() => this.CheckLanguage(index)}
+                />
+            </View>
+        )
     }
 
 
     render() {
-        const { LanguageJson, ServiceJson, Selected_Service, data, Selected_Lang, Icon1, Flag } = this.state;
-        console.log("Selected_Service", Selected_Service, "ServiceJson", ServiceJson);
+        const { LanguageJson, ServiceJson, loading } = this.state;
+        console.log("LanguageJsonrender", LanguageJson, "ServiceJsonrender", ServiceJson);
 
 
         return (
@@ -181,59 +231,38 @@ class Home extends React.Component {
                             <Text style={[Styles().ProductCategoryPickerText, { fontSize: height / 40, textAlign: 'center', margin: Config.margin }]} >{TextJson.SelectLanguage}</Text>
                         </View>
 
-                        < View style={[Styles().measureWindow2, { paddingHorizontal: Config.margin / 2, marginLeft: Config.margin, borderBottomWidth: Selected_Lang ? 1.5 : 0, borderBottomColor: Selected_Lang ? Colors.Pinkk : Colors.Grey74, }]}>
-                            {LanguageJson && LanguageJson.length > 0 ?
-                                <GlobalDropdown
-                                    SelectedValue={Selected_Lang ? Selected_Lang : LanguageJson[0].value}
-                                    Data={LanguageJson}
-                                    Viewstyle={{ width: '90%' }}
-                                    ItemonPress={(dataa, index) => this.StoreselectedLang(dataa, index)}
-                                    IconColor={Colors.Black}
-                                    FontFamily={Fonts.GeometricSemiBold}
-                                    IconNeeded={true}
-                                    containerstylewidth={'100%'}
-                                    heightstyle={(height - (Config.margin)) / 25}
-                                    ImageAvailable={true}
-                                    ImageUrl={Flag ? Flag : LanguageJson[0].flagicon}
-                                />
-                                : null
-                            }
-                        </ View>
+                        {loading ? <ActivityIndicator size={"large"} color={Colors.Pinkk} /> :
 
-                        < View style={[Styles().measureWindow2, { flexDirection: 'row', paddingHorizontal: Config.margin / 2, marginLeft: Config.margin, borderBottomWidth: Selected_Service ? 1.5 : 0, borderBottomColor: Selected_Service ? Colors.Pinkk : Colors.Grey74, }]}>
-                            {Selected_Lang  && ServiceJson && ServiceJson.length > 0 ?
-                                <GlobalDropdown
-                                    SelectedValue={Selected_Service ? Selected_Service : ServiceJson[0].value}
-                                    Data={ServiceJson}
-                                    Viewstyle={{ width: '90%', }}
-                                    ItemonPress={(dataa1, index) => this.StoreSelected_Service(dataa1, index)}
-                                    IconColor={Colors.Black}
-                                    FontFamily={Fonts.GeometricSemiBold}
-                                    IconNeeded={true}
-                                    containerstylewidth={'100%'}
-                                    heightstyle={(height - (Config.margin)) / 40}
-                                    ImageAvailable={true}
-                                    ImageUrl={Icon1 ? Icon1 : ServiceJson[0].Icon}
-                                />
-                                : null
-                            }
-                        </ View>
+                            <View style={{ marginBottom: Config.margin }} >
+                                {LanguageJson && LanguageJson != '' ?
+                                    <FlatList
+                                        showsVerticalScrollIndicator={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        data={LanguageJson}
+                                        extraData={this.state}
+                                        keyExtractor={(item, index) => index.toString()}
+                                        renderItem={LanguageJson ? this.renderLanguage : null}
+                                    />
+                                    : null}
+                            </View>
+                        }
+
                     </ScrollView>
                     <View >
                         <Text style={[Styles().ProductCategoryPickerText, { position: 'absolute', bottom: 0, fontSize: height / 40, textAlign: 'center', margin: Config.margin }]} >{this.state.connection_status ? '' : 'Disconnected'}</Text>
                     </View>
                     <View style={{ alignItems: 'center' }}>
                         <GlobalButton
-                            ButtonTitle="LOG OUT"
+                            ButtonTitle="CONTINUE"
                             ButtonType='solid'
                             ButtonWidth={width - (Config.margin * 2)}
                             Bottoncolor={Colors.Orange5}
-                            onButtonPress={() => this.logout()}
+                            onButtonPress={() => this.Continue()}
                         />
                     </View>
                 </KeyboardAvoidingView>
 
-            </SafeAreaView>
+            </SafeAreaView >
         );
     }
 }
